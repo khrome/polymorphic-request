@@ -1,6 +1,17 @@
 {
   "name": "polymorphic-request",
   "version": "0.1.0",
+  "description" : "Use a modern request library, but continue to have a working request interface",
+  "author": "Abbey Hawk Sparrow <@khrome> (http://patternweaver.com)",
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/khrome/polymorphic-request/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/khrome/polymorphic-request.git"
+  },
   "main": "request.js",
   "devDependencies": {
     "axios": "^0.20.0",
