@@ -143,9 +143,11 @@ Writing Test Suites that support many request libraries (in Mocha)
     //setup some variables
     var supportedModules = ['node-fetch', 'request', 'axios'];
     var testPort = 8081;
-    var makeRequestFunction = util.makeRequestFunctionGenerator(supportedModules, {
-        formData : require('form-data')
-    }, poly);
+    var makeRequestFunction = util.makeRequestFunctionGenerator(
+        supportedModules,
+        { formData : require('form-data') }, 
+        poly
+    );
     var testRoot = 'http://localhost:'+testPort;
 
     describe('my-awesome-module', function(){
