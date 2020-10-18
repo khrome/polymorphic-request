@@ -1,6 +1,6 @@
 {
   "name": "polymorphic-request",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description" : "Use a modern request library, but continue to have a working request interface",
   "author": "Abbey Hawk Sparrow <@khrome> (http://patternweaver.com)",
   "contributors": [],

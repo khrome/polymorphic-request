@@ -21,6 +21,11 @@ Install
 Fetch Usage
 -----------
 
+Supports:
+
+    - [node-fetch](https://www.npmjs.com/package/node-fetch)
+    - [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+
 ### ES5 Node.js
 
     var fetch = require('node-fetch');
@@ -48,15 +53,20 @@ Fetch Usage
 Axios Usage
 -----------
 
+Supports:
+
+    - [axios](https://github.com/axios/axios)
+
 ### ES5 Node.js
 
     var axios = require('axios');
     var formData = require('form-data')
-    var request = require('polymorphic-request').fetch(axios, formData);
+    var request = require('polymorphic-request').axios(axios, formData);
 
 ### ES5 Browser (Webpack/Browserify)
 
-    var request = require('polymorphic-request').fetch(axios, FormData);
+    var axios = require('axios');
+    var request = require('polymorphic-request').axios(axios, FormData);
 
 ### ES6 Node.js
 
@@ -71,6 +81,40 @@ Axios Usage
     import axios from "axios";
     import formData from "form-data";
     const request = poly(axios, formData);
+
+request Usage
+-------------
+
+Supports:
+
+    - [request](https://www.npmjs.com/package/request) [DEPRECATED]
+    - [postman-request](https://www.npmjs.com/package/postman-request)
+    - [browser-request](https://www.npmjs.com/package/browser-request) [DEPRECATED]
+
+### ES5 Node.js
+
+    var request = require('request');
+    var formData = require('form-data');
+    var request = require('polymorphic-request').request(request, formData);
+
+### ES5 Browser (Webpack/Browserify)
+
+    var request = require('request');
+    request = require('polymorphic-request').request(request, FormData);
+
+### ES6 Node.js
+
+    import poly from "polymorphic-request/implementations/request";
+    import requestLib from "request";
+    import formData from "form-data";
+    const request = poly(requestLib, formData);
+
+### ES6 Browser (Via Babel)
+
+    import poly from "polymorphic-request/implementations/request";
+    import requestLib from "request";
+    import formData from "form-data";
+    const request = poly(requestLib, formData);
 
 Testing Extensions[TBD]
 ------------------
