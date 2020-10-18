@@ -145,7 +145,7 @@ Writing Test Suites that support many request libraries (in Mocha)
     var testPort = 8081;
     var makeRequestFunction = util.makeRequestFunctionGenerator(
         supportedModules,
-        { formData : require('form-data') }, 
+        { formData : require('form-data') },
         poly
     );
     var testRoot = 'http://localhost:'+testPort;
@@ -157,7 +157,11 @@ Writing Test Suites that support many request libraries (in Mocha)
                 var getRequest = makeRequestFunction(moduleName);
 
                 before(function(done){
-                    server = util.makeServer(done, require('express'), testPort);
+                    server = util.makeServer(
+                        done,
+                        require('express'),
+                        testPort
+                    );
                 });
 
 
