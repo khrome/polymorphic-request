@@ -1,5 +1,5 @@
 {
-  "name": "polymorhpic-request",
+  "name": "polymorphic-request",
   "version": "0.1.0",
   "main": "request.js",
   "devDependencies": {
