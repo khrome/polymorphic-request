@@ -1,6 +1,6 @@
 {
   "name": "polymorhpic-request",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "request.js",
   "devDependencies": {
     "axios": "^0.20.0",
