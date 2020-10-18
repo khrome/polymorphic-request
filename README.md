@@ -3,7 +3,7 @@ polymorphic-request
 
 use your spiffy new network request library, but continue to have a working `request` interface for compatibility. No dependencies.
 
-Ding Dong! [The witch is dead](https://github.com/request/request/issues/3142)! All hail the glorious new day, which will all lead us to use a common interface, creating library consistency and reduced bundle sizes everywhere! And that interface is: Fetch, no... wait... Axios err... um...
+Ding Dong! [The witch is dead](https://github.com/request/request/issues/3142)! All hail the glorious new day, which will all lead us to use a common interface, creating library consistency and reduced bundle sizes everywhere! And that interface is: [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch), no... wait... [Axios](https://github.com/axios/axios) err... um...
 
 The main lesson I've taken away from this deprecation in favor of the "next-gen" is request is an excellent interface, stable, uniform and in 2020.... dead as a doornail.
 
@@ -23,8 +23,8 @@ Fetch Usage
 
 Supports:
 
-    - [node-fetch](https://www.npmjs.com/package/node-fetch)
-    - [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+- [node-fetch](https://www.npmjs.com/package/node-fetch)
+- [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 
 ### ES5 Node.js
 
@@ -55,7 +55,7 @@ Axios Usage
 
 Supports:
 
-    - [axios](https://github.com/axios/axios)
+- [axios](https://github.com/axios/axios)
 
 ### ES5 Node.js
 
@@ -87,9 +87,9 @@ request Usage
 
 Supports:
 
-    - [request](https://www.npmjs.com/package/request) [DEPRECATED]
-    - [postman-request](https://www.npmjs.com/package/postman-request)
-    - [browser-request](https://www.npmjs.com/package/browser-request) [DEPRECATED]
+- [request](https://www.npmjs.com/package/request) [DEPRECATED]
+- [postman-request](https://www.npmjs.com/package/postman-request)
+- [browser-request](https://www.npmjs.com/package/browser-request) [DEPRECATED]
 
 ### ES5 Node.js
 
