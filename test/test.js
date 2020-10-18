@@ -1,6 +1,9 @@
 var chai = require('chai');
+chai.use(require('chai-fs'));
 var should = chai.should();
+var fs = require('fs');
 var poly = require('../request');
+var util = require('../util');
 var express = require('express');
 
 //WTF is this stupidity mocha?!?! I predicted this trashpile.
@@ -13,10 +16,10 @@ process.on("unhandledRejection", function(reason){
 });
 
 var supportedModules = ['node-fetch', 'request', 'axios'];
-var options = {
-    'node-fetch': [require('form-data')]
-}
 var testPort = 8081;
+var makeRequestFunction = util.makeRequestFunctionGenerator(supportedModules, {
+    formData : require('form-data')
+}, poly);
 var testRoot = 'http://localhost:'+testPort;
 
 var head = function(headers, header){
@@ -27,29 +30,10 @@ describe('polymorphic-request', function(){
     supportedModules.forEach(function(moduleName){
         describe('uses the '+moduleName+' module', function(){
             var server;
-            var getRequest = function(){
-                var args = [require(moduleName)];
-                if(options[moduleName]) args = args.concat(options[moduleName]);
-                return poly[moduleName].apply(poly[moduleName], args);
-            }
+            var getRequest = makeRequestFunction(moduleName);
 
             before(function(done){
-                var app = require('express')();
-                app.use(express.static('./test/data'));
-                app.all('/mirror', function(req, res, next){
-                    var cache = [];
-                    res.send(JSON.stringify(req, function(key, value){
-                        if(typeof value === 'object' && value !== null){
-                            if(value.type === Buffer && value.data) return value.toString();
-                            if(cache.includes(value)) return;
-                            cache.push(value);
-                        }
-                        return value;
-                    }));
-                })
-                server = app.listen(testPort, function(){
-                    done();
-                });
+                server = util.makeServer(done, require('express'), testPort);
             });
 
             it('loads without error', function(){
@@ -93,7 +77,7 @@ describe('polymorphic-request', function(){
                 };
                 echoStream.on('finish', function(){
                     done();
-                })
+                });
                 request(testRoot+'/test.txt').pipe(echoStream);
             });
 
@@ -133,8 +117,118 @@ describe('polymorphic-request', function(){
             after(function(done){
                 server.close(function(){
                     done();
-                })
-            })
+                });
+            });
+        });
+    });
+
+    supportedModules.forEach(function(moduleName){
+        describe('uses a test instance with '+moduleName, function(){
+            var server;
+            var getRequest = makeRequestFunction(moduleName);
+
+            before(function(done){
+                server = util.makeServer(done, require('express'), testPort);
+            });
+
+            it('request can still perform a fetch wrapped', function(done){
+                var request = getRequest();
+                var wrapped = poly.testing(request)
+                wrapped({
+                    uri: testRoot+'/mirror'
+                }, function(err, req, data){
+                    should.not.exist(err);
+                    done();
+                });
+            });
+
+            it('request can still perform a post shortcut wrapped', function(done){
+                var request = getRequest();
+                var wrapped = poly.testing(request)
+                wrapped.post({
+                    uri: testRoot+'/mirror',
+                    json : {
+                        some : 'data'
+                    }
+                }, function(err, req, data){
+                    if(err) throw err;
+                    should.exist(req);
+                    should.exist(data);
+                    (typeof req).should.equal('object');
+                    (typeof data).should.equal('object');
+                    should.exist(data.headers);
+                    (typeof data.headers).should.equal('object');
+                    should.exist(head(data.headers, 'Content-Type'));
+                    head(data.headers, 'Content-Type').should.equal('application/json');
+                    done();
+                });
+            });
+
+            it('can override a specific URL', function(done){
+                var request = getRequest();
+                var wrapped = poly.testing(request);
+                wrapped.mock(testRoot+'/mirror', [
+                    null,
+                    {},
+                    Buffer.from('just a test')]);
+                wrapped.callCount.should.equal(0);
+                wrapped({
+                    uri: testRoot+'/mirror'
+                }, function(err, req, data){
+                    should.not.exist(err);
+                    wrapped.callCount.should.equal(1);
+                    wrapped.callthruCount.should.equal(0);
+                    data.toString().should.equal('just a test')
+                    done();
+                });
+            });
+
+            it('can record a specific URL', function(done){
+                //this.timeout(5000);
+                var request = getRequest();
+                var wrapped = poly.testing(request);
+                var thisHash;
+                wrapped.record('./test/data/', function(name){
+                    thisHash = name;
+                });
+                //todo: make the hash dynamic
+                wrapped({
+                    uri: testRoot+'/mirror'
+                }, function(err, req, data){
+                    var fileName = './test/data/'+thisHash;
+                    should.not.exist(err);
+                    setTimeout(function(){
+                        fileName.should.be.a.path();
+                        fileName.should.be.a.file().with.json;
+                        fs.unlink(fileName, function(){
+                            fileName.should.not.be.a.path();
+                            done();
+                        });
+                    }, 500);
+                });
+            });
+
+            it('request can still pipe a fetch wrapped', function(done){
+                var request = getRequest();
+                var wrapped = poly.testing(request);
+                var stream = require('stream');
+                var echoStream = new stream.Writable();
+                var result = '';
+                echoStream._write = function(chunk, encoding, complete){
+                  result += chunk.toString();
+                  complete();
+                };
+                echoStream.on('finish', function(){
+                    done();
+                });
+                wrapped(testRoot+'/test.txt').pipe(echoStream);
+            });
+
+            after(function(done){
+                server.close(function(){
+                    done();
+                });
+            });
         });
     });
 });

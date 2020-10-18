@@ -7,7 +7,7 @@ Ding Dong! [The witch is dead](https://github.com/request/request/issues/3142)! 
 
 The main lesson I've taken away from this deprecation in favor of the "next-gen" is request is an excellent interface, stable, uniform and in 2020.... dead as a doornail.
 
-Still, writing test suits for the backend in fetch leads huge blocks of promise boilerplate for anything but the simplest of cases. Due to the time scales of network requests, promise overhead is no big deal, but there's a lack of uniformity of interface, extra warts everywhere for no marginal benefit. The main argument for it being it's "compatibility" between client and server; told by people who believe it's not "best practice" to write cross compatible modules. It's bikeshedding, just like promises (how many codebases have been refactored for the aesthetics of people who principally enjoy other languages?).
+Still, writing test suits for the backend in fetch leads huge blocks of promise boilerplate for anything but the simplest of cases and still leaves plenty of room for devs to not be using their preferred solution. Due to the time scales of network requests, indirection overhead is no big deal, but there's a lack of uniformity of interface, and extra warts everywhere for no marginal benefit. The main argument for it being it's "compatibility" between client and server; told by people who believe it's not "best practice" to write cross compatible modules. It's bikeshedding, just like promises (how many codebases have been refactored for the aesthetics of people who principally enjoy other languages?).
 
 This is where polymorphic-request comes in. Put it in place and the frontend guys can use lib A the backend guys can use lib B and modules that run in both places use a request syntax, allowing pluggable libs (as long as your use cases aren't too much of an edge case) everywhere. The only supported syntaxes are in the [Test Suite](test/test.js) so please check these use cases before using and, should you need more, we accept PRs.
 
@@ -75,13 +75,67 @@ Axios Usage
 Testing Extensions[TBD]
 ------------------
 
-`request.testing()` //return an instance of request with testing features
+`var testRequest = request.testing(<instance>)` //return an instance of request with testing features
 
-`request.mock(<url>, [<filter>], <result>)` //hardcode specific request configs
+`testRequest.mock(<url or selectorFn>, <[err, res, data]>)` //hardcode specific request configs
 
-`request.events()` //event control, first ref causes event prop
+`testRequest.record(<handlerFn or dirPath>)` //record requests
 
-`request.stats()` //returns current stats, first ref activates
+`testRequest.events()[TBD]` //event control, first ref causes event prop
+
+`testRequest.stats()[TBD]` //returns current stats, first ref activates
+
+Writing Test Suites that support many request libraries (in Mocha)
+------------------------------------------------------------------
+
+```js
+    // before you start, install your dev-dependencies:
+    // node-fetch, request, axios, form-data, express & polymorhpic-request
+
+    //include some dependencies
+    var poly = require('polymorhpic-request');
+    var util = require('polymorhpic-request/util');
+
+    //setup some variables
+    var supportedModules = ['node-fetch', 'request', 'axios'];
+    var testPort = 8081;
+    var makeRequestFunction = util.makeRequestFunctionGenerator(supportedModules, {
+        formData : require('form-data')
+    }, poly);
+    var testRoot = 'http://localhost:'+testPort;
+
+    describe('my-awesome-module', function(){
+        supportedModules.forEach(function(moduleName){
+            describe('uses the '+moduleName+' module', function(){
+                var server;
+                var getRequest = makeRequestFunction(moduleName);
+
+                before(function(done){
+                    server = util.makeServer(done, require('express'), testPort);
+                });
+
+
+                it('does something with the module', function(done){
+                    var request = getRequest();
+                    request = poly.testing(request);
+                    //do your stuff
+                });
+
+                //more tests here
+
+
+                after(function(done){
+                    server.close(function(){
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+```
+
+This gives you a uniform suite executing across all fetch methods, and if you are writing a library you want to be compatible with many methods you'd set on your library at runtime with `instance.setRequest('axios', axios)` which you implement yourself as part of your library's API.
 
 Testing
 ------------
